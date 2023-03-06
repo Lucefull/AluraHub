@@ -9,12 +9,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {INav} from '../../interfaces/INav';
 
 const Home = () => {
   const [userName, setUseName] = useState('');
   const [user, setUser] = useState({});
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<INav>();
 
   return (
     <ScrollView>
@@ -43,13 +44,14 @@ const Home = () => {
           </View>
           <TouchableOpacity
             onPress={() => {
-              console.log('Button Home');
+              navigation.navigate('Repositorys');
             }}>
-            <Text style={styles.buttonText}>Ver os repositorios</Text>
+            <Text style={styles.respositorys}>Ver os repositorios</Text>
           </TouchableOpacity>
         </>
         <TextInput
           placeholder="Busque por um usuário"
+          placeholderTextColor={'#444'}
           autoCapitalize="none"
           style={styles.input}
         />
