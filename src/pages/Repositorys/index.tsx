@@ -1,17 +1,39 @@
-import {useNavigation} from '@react-navigation/native';
-import {useState} from 'react';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {useEffect, useState} from 'react';
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
+import {FlatList} from 'react-native/Libraries/Lists/FlatList';
 import {INav} from '../../interfaces/INav';
 import {IRepository} from '../../interfaces/IRepository';
+import {getRepositorysByUser} from '../../services/requisicoes/repositorys';
 
 const Repositorys = () => {
   const [repo, setRepo] = useState<IRepository[]>([]);
 
+  const route = useRoute().params as {id: number};
+
+  useEffect(() => {
+    const getRepos = async () => {
+      const res = await getRepositorysByUser(route.id);
+      setRepo(res);
+    };
+    getRepos();
+    console.log('🚀 ~ file: index.tsx:11 ~ Repositorys ~ repo:', repo);
+  }, []);
+
   const navigation = useNavigation<INav>();
+
+  const renderItem = (item: IRepository) => {
+    return (
+      <TouchableOpacity style={styles.repository}>
+        <Text style={styles.repositoryName}>{item.name}</Text>
+        <Text style={styles.repositoryName}>Atualizado em {item.date}</Text>
+      </TouchableOpacity>
+    );
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.repositoryText}>
-        {repo.length} repositorios criados{' '}
+        {repo.length} repositorios criados
       </Text>
       <TouchableOpacity
         style={styles.button}
@@ -20,6 +42,12 @@ const Repositorys = () => {
         }}>
         <Text style={styles.buttonText}>Adicionar novo repositorio</Text>
       </TouchableOpacity>
+      <FlatList
+        data={repo}
+        style={{width: '100%'}}
+        renderItem={({item}) => renderItem(item)}
+        keyExtractor={item => item.name}
+      />
     </View>
   );
 };

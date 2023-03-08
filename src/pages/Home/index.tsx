@@ -1,6 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {useState} from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -10,52 +11,70 @@ import {
   View,
 } from 'react-native';
 import {INav} from '../../interfaces/INav';
+import {IUser} from '../../interfaces/IUser';
+import {buscarUsuario} from '../../services/requisicoes/usuario';
 
 const Home = () => {
   const [userName, setUseName] = useState('');
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState<IUser | undefined>();
 
-  const navigation = useNavigation<INav>();
+  const navigation = useNavigation();
+
+  const buscar = async () => {
+    const res = await buscarUsuario(userName);
+    setUseName('');
+    if (res) {
+      setUser(res);
+    } else {
+      Alert.alert('Usuario não encontrado');
+      setUser(undefined);
+    }
+  };
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <>
-          <View style={styles.background} />
-          <View style={styles.imageArea}>
-            <Image
-              source={{
-                uri: 'https://avatars.githubusercontent.com/u/54721131?v=4',
-              }}
-              style={styles.image}
-            />
-          </View>
-          <Text style={styles.textName}>Nome do usuario</Text>
-          <Text style={styles.textEmail}>Email do usuario</Text>
-          <View style={styles.followersArea}>
-            <View style={styles.followers}>
-              <Text style={styles.followersNumber}>30</Text>
-              <Text style={styles.followersText}>Seguidores</Text>
+        {user && (
+          <>
+            <View style={styles.background} />
+            <View style={styles.imageArea}>
+              <Image
+                source={{
+                  uri: user.avatar_url,
+                }}
+                style={styles.image}
+              />
             </View>
-            <View style={styles.followers}>
-              <Text style={styles.followersNumber}>40</Text>
-              <Text style={styles.followersText}>Seguindo</Text>
+            <Text style={styles.textName}>{user.name}</Text>
+            <Text style={styles.textEmail}>{user.email}</Text>
+            <View style={styles.followersArea}>
+              <View style={styles.followers}>
+                <Text style={styles.followersNumber}>{user.followers}</Text>
+                <Text style={styles.followersText}>Seguidores</Text>
+              </View>
+              <View style={styles.followers}>
+                <Text style={styles.followersNumber}>{user.following}</Text>
+                <Text style={styles.followersText}>Seguindo</Text>
+              </View>
             </View>
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Repositorys');
-            }}>
-            <Text style={styles.respositorys}>Ver os repositorios</Text>
-          </TouchableOpacity>
-        </>
+            <TouchableOpacity
+              onPress={() => {
+                /** @ts-ignore */
+                navigation.navigate('Repositorys', {id: user.id});
+              }}>
+              <Text style={styles.respositorys}>Ver os repositorios</Text>
+            </TouchableOpacity>
+          </>
+        )}
         <TextInput
           placeholder="Busque por um usuário"
           placeholderTextColor={'#444'}
           autoCapitalize="none"
           style={styles.input}
+          value={userName}
+          onChangeText={setUseName}
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={buscar}>
           <Text style={styles.buttonText}>Buscar</Text>
         </TouchableOpacity>
       </View>

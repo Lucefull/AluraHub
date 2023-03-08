@@ -1,4 +1,6 @@
 export interface IRepository {
   name: string;
-  date: Date;
+  date: string;
+  id: number;
+  postId: number;
 }
